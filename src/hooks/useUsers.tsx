@@ -23,9 +23,10 @@ export const useUser = () => {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
-  const authApiLogin = import.meta.env.VITE_API_URL_AUTH_LOGIN;
-  const authApiRegister = import.meta.env.VITE_API_URL_AUTH_REGISTER;
-  const userLoggedURL = import.meta.env.VITE_API_URL_AUTH_ME;
+  // Fallback para string vazia evita que a URL fique ".../undefined"
+  const authApiLogin = import.meta.env.VITE_API_URL_LOGIN || '';
+  const authApiRegister = import.meta.env.VITE_API_URL_REGISTER || '';
+  const userLoggedURL = import.meta.env.VITE_API_URL_ME || '';
 
   const createUser = useCallback(async (): Promise<AuthResult> => {
     if (!newUser.nome || !newUser.email || !newUser.senha) {
@@ -33,6 +34,7 @@ export const useUser = () => {
     }
 
     try {
+      setLoading(true);
       const response = await fetch(authApiRegister, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -48,22 +50,22 @@ export const useUser = () => {
         setIsRegisterOpen(false);
         return { success: true };
       } else {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({}));
         return {
           success: false,
-          message: errorData.message || response.statusText,
+          message: errorData.message || 'Erro ao registrar usuário.',
         };
       }
     } catch (err) {
       console.error('Erro no cadastro:', err);
-      return {
-        success: false,
-        message: 'Erro de conexão ao tentar registrar.',
-      };
+      return { success: false, message: 'Erro de conexão com o servidor.' };
+    } finally {
+      setLoading(false);
     }
   }, [newUser, authApiRegister]);
 
   const login = useCallback(async (): Promise<AuthResult> => {
+    // Verifique se o backend espera 'Nome' ou 'Email' no login
     if (!newUser.nome || !newUser.senha) {
       return { success: false, message: 'Preencha o nome e a senha!' };
     }
@@ -76,8 +78,6 @@ export const useUser = () => {
         body: JSON.stringify({ Nome: newUser.nome, Senha: newUser.senha }),
       });
 
-      setLoading(false);
-
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem('authToken', data.token);
@@ -89,11 +89,12 @@ export const useUser = () => {
       }
     } catch (err) {
       console.error('Erro ao fazer login:', err);
-      setLoading(false);
       return {
         success: false,
         message: 'Erro de conexão ao tentar fazer login.',
       };
+    } finally {
+      setLoading(false);
     }
   }, [newUser, authApiLogin]);
 
@@ -105,7 +106,7 @@ export const useUser = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
-    if (!token) {
+    if (!token || !userLoggedURL) {
       setLoggedUser(null);
       return;
     }
@@ -116,16 +117,15 @@ export const useUser = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (!response.ok) {
+        if (response.ok) {
+          const data = await response.json();
+          setLoggedUser(data);
+        } else {
           localStorage.removeItem('authToken');
           setLoggedUser(null);
-          return;
         }
-
-        const data = await response.json();
-        setLoggedUser(data);
       } catch (err) {
-        console.error('Erro ao verificar usuário logado:', err);
+        console.error('Erro ao verificar sessão:', err);
         setLoggedUser(null);
       }
     };

@@ -6,14 +6,9 @@ export type Status = 'Aberta' | 'Concluida';
 export type Priority = 'Todas' | 'Alta' | 'Media' | 'Baixa';
 
 interface TokenPayload {
-  nameid: string;
-  unique_name: string;
+  nameid: string; // O ID do usuário vindo do ASP.NET costuma vir aqui
   email: string;
-  nbf: number;
   exp: number;
-  iat: number;
-  iss: number;
-  aud: number;
 }
 
 export interface TaskListProps {
@@ -38,39 +33,50 @@ export const useList = () => {
   const [userId, setUserId] = useState<number | null>(null);
   const [isOwner, setIsOwner] = useState(false);
 
-  const tarefasApi = import.meta.env.VITE_API_URL_TAREFAS;
-  const [pageCount, setPageCount] = useState(0);
+  const tarefasApi = import.meta.env.VITE_API_URL_TAREFAS || '';
   const postPerPage = 3;
+  const [pageCount, setPageCount] = useState(0);
 
   const fetchTarefas = useCallback(async () => {
-    if (!user?.id || !token) return;
+    // Se não tiver token ou a URL da API estiver vazia, não tenta o fetch
+    if (!token || !tarefasApi) return;
 
     try {
       setLoading(true);
       setError('');
 
+      // Decodifica o token para pegar o ID do usuário logado
       const decoded = jwtDecode<TokenPayload>(token);
-      const id = Number(decoded.nameid);
-      setUserId(id);
-      setIsOwner(user.id === id);
+      const idFromToken = Number(decoded.nameid);
+      setUserId(idFromToken);
 
       const response = await fetch(tarefasApi, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
 
-      if (!response.ok) throw new Error('Erro ao buscar tarefas');
+      if (!response.ok) throw new Error('Falha ao carregar tarefas.');
 
       const data: TaskListProps[] = await response.json();
-      const tarefasDoUsuario = data.filter((t) => t.usuarioId === id);
+
+      // Filtra as tarefas para mostrar apenas as do usuário atual
+      const tarefasDoUsuario = data.filter((t) => t.usuarioId === idFromToken);
 
       setLista(tarefasDoUsuario);
       setPageCount(Math.ceil(tarefasDoUsuario.length / postPerPage));
+
+      if (user?.id) {
+        setIsOwner(user.id === idFromToken);
+      }
     } catch (err) {
       setError((err as Error).message);
+      console.error('Erro fetchTarefas:', err);
     } finally {
       setLoading(false);
     }
-  }, [user, token, tarefasApi]);
+  }, [token, tarefasApi, user?.id]);
 
   useEffect(() => {
     fetchTarefas();
