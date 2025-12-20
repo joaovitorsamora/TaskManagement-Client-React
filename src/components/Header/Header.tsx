@@ -1,12 +1,11 @@
+import { useEffect } from 'react';
 import { HeaderLogo } from './HeaderLogo';
 import { HeaderNav } from './HeaderNav';
-import { HeaderLoginUser } from './HeaderLoginUser';
+import { HeaderLogin } from './HeaderLogin';
 import { HeaderSearch } from './HeaderSearch';
-import { HeaderThemeToogle } from './HeaderThemeToggle';
-import './css/Header.css';
-import { useUser } from '../../hooks/useUsers';
 import { HeaderRegisterUser } from './HeaderRegisterUser';
-import { useEffect } from 'react';
+import { HeaderContainer, HeaderActions } from './Header.styles';
+import { useUser } from '../../hooks/useUsers';
 
 interface User {
   id?: number;
@@ -32,17 +31,17 @@ export const Header = () => {
     const handleOpen = () => setIsLoginOpen(true);
     document.addEventListener('openLoginModal', handleOpen);
     return () => document.removeEventListener('openLoginModal', handleOpen);
-  }, []);
+  }, [setIsLoginOpen]);
 
   return (
-    <header className="app-header">
-      <div className="app-header__inner">
+    <HeaderContainer>
+      <HeaderActions>
         <HeaderLogo />
-        <HeaderSearch />
-        <HeaderNav />
 
-        <div className="app-header__actions">
-          <HeaderThemeToogle />
+        <HeaderSearch />
+
+        <HeaderNav />
+        <HeaderActions style={{ gap: '14px', justifyContent: 'flex-end' }}>
           <HeaderRegisterUser
             isOpen={isRegisterOpen}
             setIsOpen={setIsRegisterOpen}
@@ -52,19 +51,20 @@ export const Header = () => {
             setNewUser={setNewUser}
             onClickSignUp={() => setIsRegisterOpen(true)}
           />
-          <HeaderLoginUser
-            isOpen={isRegisterOpen}
-            setIsOpen={setIsRegisterOpen}
+
+          <HeaderLogin
+            isOpen={isLoginOpen}
+            setIsOpen={setIsLoginOpen}
             handleLogin={handleLogin}
             loggedUser={loggedUser as User}
-            onClickLogin={() => setIsLoginOpen(true)}
             newUser={newUser}
             setNewUser={setNewUser}
             isModalOpen={isLoginOpen}
             setIsModalOpen={setIsLoginOpen}
+            onClickLogin={() => setIsLoginOpen(true)}
           />
-        </div>
-      </div>
-    </header>
+        </HeaderActions>
+      </HeaderActions>
+    </HeaderContainer>
   );
 };

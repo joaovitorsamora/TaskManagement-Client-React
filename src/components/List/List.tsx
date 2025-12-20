@@ -1,11 +1,10 @@
-import { ListNav } from "./ListNav"
-import './css/List.css'
+import { ListNav } from './ListNav';
+import { ListAside, ListTitle } from './List.styles';
 export const List = () => {
-    return (
-        <aside className="listas">
-                <h2 className="listas-titulo">Listas</h2>
-                <ListNav/>
-            </aside>
-
-    )
-}
+  return (
+    <ListAside>
+      <ListTitle>Listas</ListTitle>
+      <ListNav />
+    </ListAside>
+  );
+};

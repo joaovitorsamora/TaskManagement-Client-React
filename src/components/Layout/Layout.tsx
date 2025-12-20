@@ -1,11 +1,9 @@
-import './Layout.css'
+import { InnerLayout } from './Layout.styles';
+
 interface LayoutProps {
-    children: React.ReactNode
+  children: React.ReactNode;
 }
+
 export const Layout = ({ children }: LayoutProps) => {
-    return (
-        <main className="container">
-            {children}
-        </main>
-    )
-}
+  return <InnerLayout>{children}</InnerLayout>;
+};

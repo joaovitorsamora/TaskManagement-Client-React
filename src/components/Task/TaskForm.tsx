@@ -1,5 +1,12 @@
 import { useState } from 'react';
-import './css/TaskForm.css';
+import {
+  FormContainer,
+  FieldGroup,
+  Grid,
+  ButtonRow,
+  SubmitButton,
+  ResetButton,
+} from './TaskForm.styles';
 import { useUser } from '../../hooks/useUsers';
 
 interface TaskFormProps {
@@ -80,16 +87,16 @@ export const TaskForm = () => {
   };
 
   return (
-    <form
-      className="formulario__tarefa"
+    <FormContainer
       onSubmit={(e) => {
         e.preventDefault();
         handleTarefaCreate();
       }}
     >
-      <h2 className="tarefa__titulo">Nova Tarefa</h2>
-      <div className="tarefa__titulo">
-        <label htmlFor="titulo">Titulo</label>
+      <h2>Nova Tarefa</h2>
+
+      <FieldGroup>
+        <label htmlFor="titulo">Título</label>
         <input
           id="titulo"
           name="titulo"
@@ -97,77 +104,68 @@ export const TaskForm = () => {
           value={tarefa.titulo}
           onChange={(e) => setTarefa({ ...tarefa, titulo: e.target.value })}
           placeholder="Ex.: Enviar relatório"
-          className="input-titulo"
         />
-      </div>
+      </FieldGroup>
 
-      <div className="tarefa__grid">
-        <div className="tarefa__select tarefa__grid-rows">
+      <Grid>
+        <FieldGroup>
           <label htmlFor="data">Data</label>
           <input
             id="data"
             name="data"
+            type="date"
             value={tarefa.dataCriacao}
             onChange={(e) =>
               setTarefa({ ...tarefa, dataCriacao: e.target.value })
             }
-            type="date"
-            className="input-data"
           />
-        </div>
-        <div className="tarefa__select tarefa__grid-rows">
+        </FieldGroup>
+
+        <FieldGroup>
           <label htmlFor="prioridade">Prioridade</label>
           <select
-            defaultValue="media"
             id="prioridade"
             value={tarefa.prioridadeTarefa}
-            className="input-prioridade"
             onChange={(e) =>
               setTarefa({ ...tarefa, prioridadeTarefa: e.target.value })
             }
-            name="prioridade"
           >
             <option value="todas">Todas</option>
             <option value="alta">Alta</option>
-            <option value="media">Media</option>
+            <option value="media">Média</option>
             <option value="baixa">Baixa</option>
           </select>
-        </div>
-        <div className="tarefa__select tarefa__grid-rows">
-          <label htmlFor="projetos">Projetos</label>
+        </FieldGroup>
+
+        <FieldGroup>
+          <label htmlFor="projeto">Projeto</label>
           <input
-            id="projetos"
-            name="projetos"
+            id="projeto"
             type="text"
             value={tarefa.projetoNome}
             onChange={(e) =>
               setTarefa({ ...tarefa, projetoNome: e.target.value })
             }
             placeholder="Nome do Projeto"
-            className="input-projetos"
           />
-        </div>
-      </div>
-      <div className="tarefa__tags">
+        </FieldGroup>
+      </Grid>
+
+      <FieldGroup>
         <label htmlFor="tags">Tags</label>
         <input
           id="tags"
-          name="tags"
           type="text"
           value={tarefa.tags}
           onChange={(e) => setTarefa({ ...tarefa, tags: [e.target.value] })}
-          placeholder="Separe por virgula (ex: trabalho, urgente!)"
-          className="input-tags"
+          placeholder="Separe por vírgula"
         />
-      </div>
-      <div className="tarefa__botoes">
-        <button type="submit" className="button-submit">
-          Adicionar
-        </button>
-        <button type="reset" className="button-reset">
-          Limpar
-        </button>
-      </div>
-    </form>
+      </FieldGroup>
+
+      <ButtonRow>
+        <SubmitButton type="submit">Adicionar</SubmitButton>
+        <ResetButton type="reset">Limpar</ResetButton>
+      </ButtonRow>
+    </FormContainer>
   );
 };

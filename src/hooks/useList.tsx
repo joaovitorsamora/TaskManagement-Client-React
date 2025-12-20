@@ -8,6 +8,9 @@ type User = {
   senha?: string;
 };
 
+export type Status = 'Aberta' | 'Concluida';
+export type Priority = 'Todas' | 'Alta' | 'Media' | 'Baixa';
+
 interface TokenPayload {
   nameid: string;
   unique_name: string;
@@ -25,9 +28,9 @@ export interface TaskListProps {
   projetoId?: number;
   titulo: string;
   dataCriacao: string;
-  prioridadeTarefa: string;
+  prioridadeTarefa: Priority;
   tags: string[];
-  status: string;
+  statusTarefa: Status;
 }
 
 export const useList = () => {

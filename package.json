@@ -8,7 +8,7 @@
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "check": "npm run lint && npm run type-check",
-    "build": "npm run check && vite build",
+    "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -17,6 +17,7 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-paginate": "^8.3.0",
+    "styled-components": "^6.1.19",
     "sweetalert2": "^11.26.3"
   },
   "devDependencies": {

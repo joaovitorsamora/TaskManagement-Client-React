@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useUser } from '../../hooks/useUsers';
 import { TaskForm } from './TaskForm';
 import { TaskHeader } from './TaskHeader';
-import './css/Task.css';
+import { TaskWrapper } from './Task.styles';
 
 const Task = () => {
   const { loggedUser } = useUser();
@@ -36,10 +36,10 @@ const Task = () => {
 
   try {
     return (
-      <section className="tarefas">
+      <TaskWrapper>
         <TaskHeader />
         <TaskForm />
-      </section>
+      </TaskWrapper>
     );
   } catch (error) {
     console.error('Erro ao renderizar tarefa:', error);
