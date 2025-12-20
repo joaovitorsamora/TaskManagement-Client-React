@@ -34,7 +34,7 @@ export const HeaderLogin = ({
   isModalOpen,
   setIsModalOpen,
 }: HeaderLoginProps) => {
-  const { loggedUser, handleLogin, logout, newUser, setNewUser } = useUser();
+  const { loggedUser, login, logout, newUser, setNewUser } = useUser();
 
   return (
     <>
@@ -56,7 +56,7 @@ export const HeaderLogin = ({
           <Modal
             onSubmit={(e) => {
               e.preventDefault();
-              handleLogin();
+              login();
             }}
           >
             <label htmlFor="nome">Nome</label>

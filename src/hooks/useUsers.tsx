@@ -1,11 +1,15 @@
-import { useEffect, useState } from 'react';
-import Swal from 'sweetalert2';
+import { useEffect, useState, useCallback } from 'react';
 
-type User = {
+export type User = {
   id?: number;
   nome: string;
   email: string;
   senha?: string;
+};
+
+type AuthResult = {
+  success: boolean;
+  message?: string;
 };
 
 export const useUser = () => {
@@ -15,6 +19,7 @@ export const useUser = () => {
     senha: '',
   });
   const [loggedUser, setLoggedUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
@@ -22,9 +27,9 @@ export const useUser = () => {
   const authApiRegister = import.meta.env.VITE_API_URL_AUTH_REGISTER;
   const userLoggedURL = import.meta.env.VITE_API_URL_AUTH_ME;
 
-  const handleCreateUser = async () => {
+  const createUser = useCallback(async (): Promise<AuthResult> => {
     if (!newUser.nome || !newUser.email || !newUser.senha) {
-      return Swal.fire({ title: 'Preencha todos os campos!', icon: 'warning' });
+      return { success: false, message: 'Preencha todos os campos!' };
     }
 
     try {
@@ -41,75 +46,62 @@ export const useUser = () => {
       if (response.ok) {
         setNewUser({ nome: '', email: '', senha: '' });
         setIsRegisterOpen(false);
-        Swal.fire({
-          title: 'Usuário criado com sucesso! Faça o login.',
-          icon: 'success',
-        });
+        return { success: true };
       } else {
         const errorData = await response.json();
-        Swal.fire({
-          title: `Erro ao criar usuário: ${errorData.message || response.statusText}`,
-          icon: 'error',
-        });
+        return {
+          success: false,
+          message: errorData.message || response.statusText,
+        };
       }
     } catch (err) {
       console.error('Erro no cadastro:', err);
-      Swal.fire({
-        title: 'Erro de conexão ao tentar registrar.',
-        icon: 'error',
-      });
+      return {
+        success: false,
+        message: 'Erro de conexão ao tentar registrar.',
+      };
     }
-  };
+  }, [newUser, authApiRegister]);
 
-  const handleLogin = async () => {
+  const login = useCallback(async (): Promise<AuthResult> => {
     if (!newUser.nome || !newUser.senha) {
-      return Swal.fire({
-        title: 'Preencha o nome e a senha!',
-        icon: 'warning',
-      });
+      return { success: false, message: 'Preencha o nome e a senha!' };
     }
 
     try {
-      Swal.showLoading();
-
+      setLoading(true);
       const response = await fetch(authApiLogin, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          Nome: newUser.nome,
-          Senha: newUser.senha,
-        }),
+        body: JSON.stringify({ Nome: newUser.nome, Senha: newUser.senha }),
       });
 
-      Swal.close();
+      setLoading(false);
 
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem('authToken', data.token);
         setLoggedUser(data.user);
         setIsLoginOpen(false);
+        return { success: true };
       } else {
-        Swal.fire({
-          title: 'Credenciais inválidas. Tente novamente.',
-          icon: 'warning',
-        });
+        return { success: false, message: 'Credenciais inválidas.' };
       }
-    } catch (error) {
-      console.error('Erro ao fazer login:', error);
-      Swal.fire({
-        title: 'Erro de conexão ao tentar fazer login.',
-        icon: 'error',
-      });
+    } catch (err) {
+      console.error('Erro ao fazer login:', err);
+      setLoading(false);
+      return {
+        success: false,
+        message: 'Erro de conexão ao tentar fazer login.',
+      };
     }
-  };
+  }, [newUser, authApiLogin]);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('authToken');
-    localStorage.clear();
     setLoggedUser(null);
-    Swal.fire({ title: 'Usuario deslogado!', icon: 'success' });
     setIsLoginOpen(true);
-  };
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -121,29 +113,16 @@ export const useUser = () => {
     const fetchUser = async () => {
       try {
         const response = await fetch(userLoggedURL, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (response.status === 401) {
+        if (!response.ok) {
           localStorage.removeItem('authToken');
           setLoggedUser(null);
           return;
         }
 
-        if (!response.ok) {
-          setLoggedUser(null);
-          return;
-        }
-
         const data = await response.json();
-
-        if (data.message || !data.email) {
-          setLoggedUser(null);
-          return;
-        }
-
         setLoggedUser(data);
       } catch (err) {
         console.error('Erro ao verificar usuário logado:', err);
@@ -157,14 +136,15 @@ export const useUser = () => {
   return {
     newUser,
     setNewUser,
-    handleCreateUser,
-    handleLogin,
     loggedUser,
     setLoggedUser,
+    loading,
     isRegisterOpen,
-    isLoginOpen,
     setIsRegisterOpen,
+    isLoginOpen,
     setIsLoginOpen,
+    createUser,
+    login,
     logout,
   };
 };

@@ -18,9 +18,9 @@ export const Header = () => {
   const {
     newUser,
     setNewUser,
-    handleCreateUser,
+    createUser,
     loggedUser,
-    handleLogin,
+    login,
     isLoginOpen,
     isRegisterOpen,
     setIsRegisterOpen,
@@ -45,7 +45,7 @@ export const Header = () => {
           <HeaderRegisterUser
             isOpen={isRegisterOpen}
             setIsOpen={setIsRegisterOpen}
-            handleCreateUser={handleCreateUser}
+            handleCreateUser={createUser}
             loggedUser={loggedUser as User}
             newUser={newUser}
             setNewUser={setNewUser}
@@ -55,7 +55,7 @@ export const Header = () => {
           <HeaderLogin
             isOpen={isLoginOpen}
             setIsOpen={setIsLoginOpen}
-            handleLogin={handleLogin}
+            handleLogin={login}
             loggedUser={loggedUser as User}
             newUser={newUser}
             setNewUser={setNewUser}

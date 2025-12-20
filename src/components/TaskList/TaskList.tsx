@@ -25,10 +25,11 @@ const TaskList = () => {
   const [currentPage, setCurrentPage] = useState(0);
 
   const token = localStorage.getItem('authToken');
-  const { setLista, error, loading, pageCount, postPerPage, tarefasApi } =
-    useList();
+  const { setLista, error, loading, pageCount, postPerPage } = useList();
   const { selectedPriority, selectedStatus, searchItemValue } = useFilter();
   const { loggedUser } = useUser();
+
+  const tarefasApi = import.meta.env.VITE_API_URL_TAREFAS;
 
   if (!loggedUser) return null;
 
