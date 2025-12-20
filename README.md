@@ -1,73 +1,42 @@
-# React + TypeScript + Vite
+# ⚛️ Task Management Client (React + TypeScript)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Uma Single Page Application (SPA) reativa e responsiva desenvolvida para interagir com a API de Gerenciamento de Tarefas. O foco é na experiência do usuário, gerenciamento de estado assíncrono e tipagem segura.
 
-Currently, two official plugins are available:
+## 🚀 Tecnologias e Ferramentas
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+* **Framework:** React 18
+* **Linguagem:** TypeScript
+* **Gerenciamento de Estado:** Redux [ou Context API, se aplicável]
+* **Estilização:** [Mencione sua biblioteca: Ex: Tailwind CSS ou CSS Modules]
+* **Rotas:** React Router DOM
+* **Comunicação:** Axios ou Fetch API
 
-## React Compiler
+## ✨ Principais Funcionalidades
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* **Interface Intuitiva:** Criação e listagem de tarefas com formulários validados.
+* **Filtros e Busca:** Filtragem instantânea por prioridade (Alta, Média, Baixa), status (Concluída, Pendente) e nome do projeto.
+* **Autenticação:** Gerenciamento do ciclo de vida de Login/Logout, utilizando o token JWT retornado pela API para proteger rotas.
+* **UX:** Componentes reativos para edição e exclusão de tarefas em tempo real, sem a necessidade de recarregar a página.
 
-## Expanding the ESLint configuration
+## ⚙️ Arquitetura do Projeto
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+A aplicação é estruturada para escalabilidade, separando responsabilidades em:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+1.  **`src/pages`**: Componentes de tela principal (Login, Dashboard, Detalhe da Tarefa).
+2.  **`src/components`**: Componentes reutilizáveis (Formulários, Cards de Tarefa, Header).
+3.  **`src/redux`**: Lógica de gerenciamento de estado e requisições assíncronas (Thunks).
+4.  **`src/services`**: Funções de comunicação direta com a API.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🔗 Link para o Backend
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Este cliente foi desenvolvido para consumir a **Task Management API**:
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+* **Repositório do Backend:** [Link para o repositório da API]
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🛠 Como Rodar Localmente
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+1.  Certifique-se de que a API (`TaskManagement-API-NETCore`) esteja rodando.
+2.  Clone este repositório: `git clone [URL]`
+3.  Instale as dependências: `npm install` ou `yarn install`
+4.  Crie um arquivo `.env` e configure a variável `REACT_APP_API_URL` apontando para o endereço da sua API.
+5.  Inicie a aplicação: `npm start` ou `yarn start`
