@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import ReactPaginate from 'react-paginate';
 
 export const ListContainer = styled.ul`
   display: flex;
@@ -68,4 +69,37 @@ export const PriorityStyle = styled.span<{ level: string }>`
       border: 1px solid #2ecc71;
     `,
     })[level]}
+`;
+
+export const ReactPaginateStyle = styled(ReactPaginate)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  list-style: none;
+
+  .page-link {
+    padding: 8px 14px;
+    cursor: pointer;
+    background: none;
+    color: ${({ theme }) => theme.colors.text};
+  }
+
+  .active .page-link {
+    background: ${({ theme }) => theme.colors.primary};
+    color: #fff;
+    padding: 8px 14px;
+    border: 1px solid;
+    border-radius: 6px;
+  }
+
+  .previousNextButton {
+    list-style: none;
+    padding: 6px 10px;
+    background: ${({ theme }) => theme.colors.primary};
+    border: 1px solid ${({ theme }) => theme.colors.border};
+    border-radius: 6px;
+    cursor: pointer;
+    color: ${({ theme }) => theme.colors.text};
+  }
 `;

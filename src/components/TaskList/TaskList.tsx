@@ -6,8 +6,8 @@ import {
   InfoArea,
   Tag,
   PriorityStyle,
+  ReactPaginateStyle,
 } from './TaskList.styles';
-import ReactPaginate from 'react-paginate';
 import { Modal } from './Modal';
 import { useFilter } from '../../components/index';
 import { useUser } from '../../hooks/useUsers';
@@ -272,7 +272,7 @@ const TaskList = () => {
           );
         })}
       </ListContainer>
-      <ReactPaginate
+      <ReactPaginateStyle
         previousLabel={'Previous'}
         nextLabel={'Next'}
         breakLabel={'...'}
@@ -281,6 +281,9 @@ const TaskList = () => {
         onPageChange={handlePageClick}
         containerClassName={'pagination'}
         activeClassName={'active'}
+        previousClassName={'previousNextButton'}
+        nextClassName={'previousNextButton'}
+        pageLinkClassName={'page-link'}
       />
 
       {showModal && tarefaSelecionada && (
