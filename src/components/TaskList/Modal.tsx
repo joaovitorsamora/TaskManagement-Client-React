@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import type { TaskListProps } from '../../hooks/useList';
 
 import {
   Overlay,
@@ -7,6 +6,7 @@ import {
   SaveButton,
   CancelButton,
 } from './Modal.styles';
+import type { Priority, TaskListProps } from '../context/TaskContext';
 
 interface ModalProps {
   showModal: boolean;
@@ -21,6 +21,13 @@ export const Modal = ({
   tarefaSelecionada,
   handleEditTask,
 }: ModalProps) => {
+  const PriorityMap: Record<string, Priority> = {
+    todas: 'todas',
+    alta: 'alta',
+    media: 'media',
+    baixa: 'baixa',
+  };
+
   const [editedTask, setEditedTask] =
     useState<TaskListProps>(tarefaSelecionada);
 
@@ -72,7 +79,7 @@ export const Modal = ({
           onChange={(e) =>
             setEditedTask({
               ...editedTask,
-              prioridadeTarefa: e.target.value,
+              prioridadeTarefa: PriorityMap[e.target.value],
             })
           }
         />

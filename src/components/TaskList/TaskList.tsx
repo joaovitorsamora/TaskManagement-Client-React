@@ -5,14 +5,19 @@ import {
   Card,
   InfoArea,
   Tag,
-  Priority,
+  PriorityStyle,
 } from './TaskList.styles';
 import ReactPaginate from 'react-paginate';
-import { useList, type Status, type TaskListProps } from '../../hooks/useList';
 import { Modal } from './Modal';
 import { useFilter } from '../../components/index';
 import { useUser } from '../../hooks/useUsers';
 import Swal from 'sweetalert2';
+import {
+  useTasks,
+  type Priority,
+  type Status,
+  type TaskListProps,
+} from '../context/TaskContext';
 
 export type TaskUpdatePayload = {
   id?: number;
@@ -25,13 +30,25 @@ const TaskList = () => {
   const [currentPage, setCurrentPage] = useState(0);
 
   const token = localStorage.getItem('authToken');
-  const { setLista, error, loading, pageCount, postPerPage } = useList();
-  const { selectedPriority, selectedStatus, searchItemValue } = useFilter();
+  const { searchItemValue } = useFilter();
+  const { lista, setLista, error, loading, postPerPage } = useTasks();
   const { loggedUser } = useUser();
 
   const tarefasApi = import.meta.env.VITE_API_URL_TAREFAS;
 
   if (!loggedUser) return null;
+
+  const PriorityMap: Record<string, Priority> = {
+    todas: 'todas',
+    alta: 'alta',
+    media: 'media',
+    baixa: 'baixa',
+  };
+
+  const StatusMap: Record<string, Status> = {
+    aberta: 'aberta',
+    concluida: 'concluida',
+  };
 
   const handleDeleteTask = async (id: number) => {
     if (!token) return alert('Token inválido!');
@@ -54,7 +71,10 @@ const TaskList = () => {
     }
   };
 
-  const handleEditTask = async (id: number, payload: TaskListProps) => {
+  const handleEditTask = async (
+    id: number,
+    payload: Partial<TaskListProps>
+  ) => {
     if (!token) {
       Swal.fire({
         title: 'Erro!',
@@ -139,8 +159,9 @@ const TaskList = () => {
   };
 
   const handleChecked = async (tarefa: TaskListProps) => {
+    const statusOriginal = tarefa.statusTarefa;
     const novoStatus: Status =
-      tarefa.statusTarefa === 'Aberta' ? 'Concluida' : 'Aberta';
+      StatusMap[tarefa.statusTarefa] === 'aberta' ? 'concluida' : 'aberta';
 
     setLista((prev) =>
       prev.map((item) =>
@@ -149,29 +170,20 @@ const TaskList = () => {
     );
 
     try {
-      if (!tarefa.statusTarefa) return;
-      await handleEditTask(tarefa.id, { ...tarefa, statusTarefa: novoStatus });
+      await handleEditTask(tarefa.id, { statusTarefa: novoStatus });
     } catch (error) {
-      alert(error);
+      setLista((prev) =>
+        prev.map((item) =>
+          item.id === tarefa.id
+            ? { ...item, statusTarefa: statusOriginal }
+            : item
+        )
+      );
     }
   };
 
   if (loading) return <p>Carregando tarefas...</p>;
   if (error) return <p>{error}</p>;
-
-  const filteredTask = searchItemValue.filter((task: TaskListProps) => {
-    const filterPriority =
-      selectedPriority === 'Todas' || selectedPriority === ''
-        ? true
-        : task.prioridadeTarefa === selectedPriority;
-
-    const filterStatus =
-      selectedStatus === '' ||
-      selectedStatus === 'Aberta' ||
-      task.statusTarefa === selectedStatus;
-
-    return filterStatus && filterPriority;
-  });
 
   const handlePageClick = (event: { selected: number }) => {
     setCurrentPage(event.selected);
@@ -179,74 +191,92 @@ const TaskList = () => {
 
   const indexOfLastPost = (currentPage + 1) * postPerPage;
   const indexOfFirstPost = indexOfLastPost - postPerPage;
-  const currentPost = filteredTask.slice(indexOfFirstPost, indexOfLastPost);
+  const currentPost = searchItemValue.slice(indexOfFirstPost, indexOfLastPost);
+  const getPrioridade = (prioridade: unknown) => {
+    const safe =
+      typeof prioridade === 'string'
+        ? prioridade
+        : String(prioridade ?? 'todas');
+
+    const label =
+      safe.length > 0 ? safe.charAt(0).toUpperCase() + safe.slice(1) : 'Todas';
+
+    return {
+      raw: safe,
+      label,
+    };
+  };
 
   return (
     <>
       <ListContainer>
-        {currentPost.map((tarefa: TaskListProps) => (
-          <ListItem key={tarefa.id}>
-            <Card>
-              <input
-                type="checkbox"
-                id={`tarefa-${tarefa.id}`}
-                checked={tarefa.statusTarefa === 'Concluida'}
-                onChange={() => handleChecked(tarefa)}
-              />
+        {currentPost.map((tarefa: TaskListProps) => {
+          const prioridade = getPrioridade(tarefa.prioridadeTarefa);
+          return (
+            <ListItem key={tarefa.id}>
+              <Card>
+                <input
+                  type="checkbox"
+                  id={`tarefa-${tarefa.id}`}
+                  checked={tarefa.statusTarefa === 'concluida'}
+                  onChange={() => handleChecked(tarefa)}
+                />
 
-              <label
-                htmlFor={`tarefa-${tarefa.id}`}
-                style={{
-                  textDecoration:
-                    tarefa.statusTarefa === 'Concluida'
-                      ? 'line-through'
-                      : 'none',
-                }}
-              >
-                {tarefa.titulo}
-              </label>
-
-              <InfoArea>
-                <Priority level={tarefa.prioridadeTarefa}>
-                  {tarefa.prioridadeTarefa}
-                </Priority>
-
-                <time dateTime={tarefa.dataCriacao}>
-                  {new Date(tarefa.dataCriacao).toLocaleDateString()}
-                </time>
-
-                {tarefa.tags.length > 0 && (
-                  <div style={{ display: 'flex', gap: '6px' }}>
-                    {tarefa.tags.map((tag, i) => (
-                      <Tag key={i}>{tag}</Tag>
-                    ))}
-                  </div>
-                )}
-              </InfoArea>
-
-              <menu
-                style={{ display: 'flex', gap: '10px', marginLeft: 'auto' }}
-              >
-                <button
-                  onClick={() => {
-                    setTarefaSelecionada(tarefa);
-                    setShowModal(true);
+                <label
+                  htmlFor={`tarefa-${tarefa.id}`}
+                  style={{
+                    textDecoration:
+                      tarefa.statusTarefa === 'concluida'
+                        ? 'line-through'
+                        : 'none',
                   }}
                 >
-                  ✏️
-                </button>
-                <button onClick={() => handleDeleteTask(tarefa.id)}>🗑️</button>
-              </menu>
-            </Card>
-          </ListItem>
-        ))}
-      </ListContainer>
+                  {tarefa.titulo}
+                </label>
 
+                <InfoArea>
+                  <PriorityStyle level={prioridade.label}>
+                    {prioridade.label}
+                  </PriorityStyle>
+
+                  <time dateTime={tarefa.dataCriacao}>
+                    {new Date(tarefa.dataCriacao).toLocaleDateString()}
+                  </time>
+
+                  {tarefa.tags.length > 0 && (
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      {tarefa.tags.map((tag, i) => (
+                        <Tag key={i}>{tag}</Tag>
+                      ))}
+                    </div>
+                  )}
+                </InfoArea>
+
+                <menu
+                  style={{ display: 'flex', gap: '10px', marginLeft: 'auto' }}
+                >
+                  <button
+                    onClick={() => {
+                      setTarefaSelecionada(tarefa);
+                      setShowModal(true);
+                    }}
+                  >
+                    ✏️
+                  </button>
+                  <button onClick={() => handleDeleteTask(tarefa.id)}>
+                    🗑️
+                  </button>
+                </menu>
+              </Card>
+            </ListItem>
+          );
+        })}
+      </ListContainer>
       <ReactPaginate
         previousLabel={'Previous'}
         nextLabel={'Next'}
         breakLabel={'...'}
-        pageCount={pageCount}
+        pageCount={Math.ceil(searchItemValue.length / postPerPage)}
         forcePage={currentPage}
         onPageChange={handlePageClick}
         containerClassName={'pagination'}

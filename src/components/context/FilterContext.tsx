@@ -1,5 +1,5 @@
 import { createContext, type Dispatch, type SetStateAction } from 'react';
-import { type TaskListProps } from '../../hooks/useList';
+import type { TaskListProps } from './TaskContext';
 
 interface FilterContextProps {
   selectedPriority: string;

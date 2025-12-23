@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import './css/HeaderSearch.css';
-import { useList } from '../../hooks/useList';
+
 import { useFilter } from '../../components/index';
+import { useTasks } from '../context/TaskContext';
 export const HeaderSearch = () => {
-  const { lista } = useList();
   const { setSearchItemValue } = useFilter();
+  const { lista } = useTasks();
   const [inputValue, setInputValue] = useState('');
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {

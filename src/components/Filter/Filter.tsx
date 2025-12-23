@@ -1,5 +1,5 @@
-import { useList } from '../../hooks/useList';
 import { useFilter } from '../../components/index';
+import { useTasks, type TaskListProps } from '../context/TaskContext';
 
 import {
   FilterWrapper,
@@ -14,7 +14,7 @@ import {
 } from './Filter.styles';
 
 export const Filter = () => {
-  const { lista } = useList();
+  const { lista } = useTasks();
 
   const {
     selectedPriority,
@@ -23,9 +23,13 @@ export const Filter = () => {
     setSelectedStatus,
   } = useFilter();
 
-  const priorities = ['Todas', 'Alta', 'Media', 'Baixa'];
+  const priorities = ['todas', 'alta', 'media', 'baixa'];
 
-  const status = [{ Aberta: 'Aberta', Concluida: 'Concluida' }];
+  const status = [{ Aberta: 'aberta', Concluida: 'concluida' }];
+
+  const tags = lista.flatMap((tarefa) => tarefa.tags);
+
+  const uniqueTags = [...new Set(tags)];
 
   return (
     <FilterWrapper>
@@ -45,7 +49,7 @@ export const Filter = () => {
                 checked={selectedStatus === s.Aberta}
                 onChange={(e) => setSelectedStatus(e.target.value)}
               />
-              {s.Aberta}
+              {s.Aberta.charAt(0).toUpperCase() + s.Aberta.slice(1)}
             </Option>
 
             <Option>
@@ -55,7 +59,7 @@ export const Filter = () => {
                 checked={selectedStatus === s.Concluida}
                 onChange={(e) => setSelectedStatus(e.target.value)}
               />
-              {s.Concluida}
+              {s.Concluida.charAt(0).toUpperCase() + s.Concluida.slice(1)}
             </Option>
           </CheckGroup>
         ))}
@@ -73,7 +77,7 @@ export const Filter = () => {
               checked={selectedPriority === priority}
               onChange={(e) => setSelectedPriority(e.target.value)}
             />
-            {priority}
+            {priority.charAt(0).toUpperCase() + priority.slice(1)}
           </Option>
         ))}
       </Group>
@@ -82,11 +86,9 @@ export const Filter = () => {
         <Legend>Tags</Legend>
 
         <TagList>
-          {lista.map((tarefa) =>
-            tarefa.tags.map((tag, idx) => (
-              <TagButton key={idx}>{tag}</TagButton>
-            ))
-          )}
+          {uniqueTags.map((tag, idx) => (
+            <TagButton key={idx}>{tag}</TagButton>
+          ))}
         </TagList>
       </Group>
     </FilterWrapper>

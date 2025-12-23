@@ -40,7 +40,7 @@ export const Tag = styled.span`
   font-size: 0.8rem;
 `;
 
-export const Priority = styled.span<{ level: string }>`
+export const PriorityStyle = styled.span<{ level: string }>`
   padding: 4px 10px;
   border-radius: 12px;
   font-weight: bold;

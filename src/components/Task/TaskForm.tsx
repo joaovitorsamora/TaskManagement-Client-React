@@ -8,35 +8,36 @@ import {
   ResetButton,
 } from './TaskForm.styles';
 import { useUser } from '../../hooks/useUsers';
+import type { Priority, Status } from '../context/TaskContext';
+import { format, parseISO } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface TaskFormProps {
   id?: number;
   usuarioId?: number;
   projetoId?: number;
   titulo: string;
-  dataCriacao: string;
   projetoNome: string;
-  statusTarefa?: 1;
-  prioridadeTarefa: string;
+  statusTarefa?: Status;
+  prioridadeTarefa: Priority;
   tags: string[];
 }
 
 export const TaskForm = () => {
   const [tarefa, setTarefa] = useState<TaskFormProps>({
     titulo: '',
-    dataCriacao: '',
-    statusTarefa: 1,
-    prioridadeTarefa: '',
+    statusTarefa: 'aberta',
+    prioridadeTarefa: 'todas',
     projetoNome: '',
     tags: [''],
   });
   const tarefasApi = import.meta.env.VITE_API_URL_TAREFAS;
   const authToken = localStorage.getItem('authToken');
-  const prioridadeMap: Record<string, number> = {
-    todas: 1,
-    alta: 2,
-    media: 3,
-    baixa: 4,
+  const prioridadeMap: Record<string, Priority> = {
+    todas: 'todas',
+    alta: 'alta',
+    media: 'media',
+    baixa: 'baixa',
   };
 
   const { loggedUser } = useUser();
@@ -54,11 +55,10 @@ export const TaskForm = () => {
         },
         body: JSON.stringify({
           Titulo: tarefa.titulo,
-          DataCriacao: tarefa.dataCriacao,
           ProjetoNome: tarefa.projetoNome,
-          StatusTarefa: 1,
+          StatusTarefa: tarefa.statusTarefa,
           PrioridadeTarefa:
-            prioridadeMap[tarefa.prioridadeTarefa.toLowerCase()] ?? 3,
+            prioridadeMap[tarefa.prioridadeTarefa.toLowerCase()] ?? 'media',
           Tags: tarefa.tags,
         }),
       });
@@ -73,9 +73,8 @@ export const TaskForm = () => {
 
       setTarefa({
         titulo: '',
-        dataCriacao: '',
         projetoNome: '',
-        prioridadeTarefa: '',
+        prioridadeTarefa: 'media',
         tags: [''],
       });
 
@@ -109,25 +108,15 @@ export const TaskForm = () => {
 
       <Grid>
         <FieldGroup>
-          <label htmlFor="data">Data</label>
-          <input
-            id="data"
-            name="data"
-            type="date"
-            value={tarefa.dataCriacao}
-            onChange={(e) =>
-              setTarefa({ ...tarefa, dataCriacao: e.target.value })
-            }
-          />
-        </FieldGroup>
-
-        <FieldGroup>
           <label htmlFor="prioridade">Prioridade</label>
           <select
             id="prioridade"
             value={tarefa.prioridadeTarefa}
             onChange={(e) =>
-              setTarefa({ ...tarefa, prioridadeTarefa: e.target.value })
+              setTarefa({
+                ...tarefa,
+                prioridadeTarefa: prioridadeMap[e.target.value],
+              })
             }
           >
             <option value="todas">Todas</option>
@@ -156,8 +145,13 @@ export const TaskForm = () => {
         <input
           id="tags"
           type="text"
-          value={tarefa.tags}
-          onChange={(e) => setTarefa({ ...tarefa, tags: [e.target.value] })}
+          value={tarefa.tags.join(',')}
+          onChange={(e) =>
+            setTarefa({
+              ...tarefa,
+              tags: e.target.value.split(',').map((t) => t.trim()),
+            })
+          }
           placeholder="Separe por vírgula"
         />
       </FieldGroup>
