@@ -36,6 +36,6 @@ Este cliente foi desenvolvido para consumir a **Task Management API**:
 
 1.  Certifique-se de que a API (`TaskManagement-API-NETCore`) esteja rodando.
 2.  Clone este repositório: `git clone [URL]`
-3.  Instale as dependências: `npm install` ou `yarn install`
+3.  Instale as dependências: `npm install`
 4.  Crie um arquivo `.env` e configure a variável `REACT_APP_API_URL` apontando para o endereço da sua API.
-5.  Inicie a aplicação: `npm start` ou `yarn start`
+5.  Inicie a aplicação: `npm run dev`
