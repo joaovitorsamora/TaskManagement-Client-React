@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { FilterContext } from './FilterContext';
-import { useTasks } from './TaskContext';
+import { useTasks } from './useTasks';
 
 export const FilterProvide = ({ children }: { children: ReactNode }) => {
   const { lista } = useTasks();

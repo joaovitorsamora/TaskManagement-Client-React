@@ -2,7 +2,7 @@ import { useState } from 'react';
 import './css/HeaderSearch.css';
 
 import { useFilter } from '../../components/index';
-import { useTasks } from '../context/TaskContext';
+import { useTasks } from '../context/useTasks';
 export const HeaderSearch = () => {
   const { setSearchItemValue } = useFilter();
   const { lista } = useTasks();

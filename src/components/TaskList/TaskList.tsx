@@ -12,12 +12,8 @@ import { Modal } from './Modal';
 import { useFilter } from '../../components/index';
 import { useUser } from '../../hooks/useUsers';
 import Swal from 'sweetalert2';
-import {
-  useTasks,
-  type Priority,
-  type Status,
-  type TaskListProps,
-} from '../context/TaskContext';
+import { useTasks } from '../context/useTasks';
+import type { Status, TaskListProps } from '../context/TaskContext';
 
 export type TaskUpdatePayload = {
   id?: number;
@@ -31,19 +27,12 @@ const TaskList = () => {
 
   const token = localStorage.getItem('authToken');
   const { searchItemValue } = useFilter();
-  const { lista, setLista, error, loading, postPerPage } = useTasks();
+  const { setLista, postPerPage } = useTasks();
   const { loggedUser } = useUser();
 
   const tarefasApi = import.meta.env.VITE_API_URL_TAREFAS;
 
   if (!loggedUser) return null;
-
-  const PriorityMap: Record<string, Priority> = {
-    todas: 'todas',
-    alta: 'alta',
-    media: 'media',
-    baixa: 'baixa',
-  };
 
   const StatusMap: Record<string, Status> = {
     aberta: 'aberta',
@@ -181,9 +170,6 @@ const TaskList = () => {
       );
     }
   };
-
-  if (loading) return <p>Carregando tarefas...</p>;
-  if (error) return <p>{error}</p>;
 
   const handlePageClick = (event: { selected: number }) => {
     setCurrentPage(event.selected);

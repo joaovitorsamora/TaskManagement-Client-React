@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   FormContainer,
   FieldGroup,
@@ -9,8 +9,6 @@ import {
 } from './TaskForm.styles';
 import { useUser } from '../../hooks/useUsers';
 import type { Priority, Status } from '../context/TaskContext';
-import { format, parseISO } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 
 interface TaskFormProps {
   id?: number;
@@ -40,12 +38,8 @@ export const TaskForm = () => {
     baixa: 'baixa',
   };
 
-  const { loggedUser } = useUser();
-
-  if (!loggedUser) {
-    return null;
-  }
-  const handleTarefaCreate = async () => {
+  const handleTarefaCreate = useCallback(async () => {
+    if (!authToken) return;
     try {
       const response = await fetch(tarefasApi, {
         method: 'POST',
@@ -83,7 +77,11 @@ export const TaskForm = () => {
       console.error(err);
       alert('Erro ao criar tarefa');
     }
-  };
+  }, [authToken, tarefa, tarefasApi]);
+
+  if (!authToken) {
+    return <p>Loading ou Acesso Negado...</p>;
+  }
 
   return (
     <FormContainer

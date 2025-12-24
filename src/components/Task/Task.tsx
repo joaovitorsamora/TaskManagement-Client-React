@@ -6,44 +6,33 @@ import { TaskHeader } from './TaskHeader';
 import { TaskWrapper } from './Task.styles';
 
 const Task = () => {
-  const { loggedUser } = useUser();
+  const { loggedUser, loading } = useUser();
   const authToken = localStorage.getItem('authToken');
 
   useEffect(() => {
-    if (
-      window.location.pathname.includes('/tasks') &&
-      (!authToken || !loggedUser)
-    ) {
+    if (loading) return;
+    const isAuthenticated = !!authToken && !!loggedUser;
+    if (!isAuthenticated) {
       Swal.fire({
         text: 'Você precisa fazer login para criar tarefas.',
         icon: 'warning',
         confirmButtonText: 'Fazer Login',
-      })
-        .then((result) => {
-          if (result.isConfirmed) {
-            document.dispatchEvent(new CustomEvent('openLoginModal'));
-          }
-        })
-        .catch((error) => {
-          console.error('Erro ao abrir modal de login:', error);
-        });
+      }).then((result) => {
+        if (result.isConfirmed) {
+          document.dispatchEvent(new CustomEvent('openLoginModal'));
+        }
+      });
     }
-  }, [authToken, loggedUser]);
+  }, [authToken, loggedUser, loading]);
 
-  if (!authToken || !loggedUser) {
-    return null;
-  }
+  if (!loggedUser) return null;
 
-  try {
-    return (
-      <TaskWrapper>
-        <TaskHeader />
-        <TaskForm />
-      </TaskWrapper>
-    );
-  } catch (error) {
-    console.error('Erro ao renderizar tarefa:', error);
-  }
+  return (
+    <TaskWrapper>
+      <TaskHeader />
+      <TaskForm />
+    </TaskWrapper>
+  );
 };
 
 export default Task;

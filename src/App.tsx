@@ -6,8 +6,8 @@ import { Layout } from './components/Layout/Layout';
 import { Aside } from './components/Aside/Aside';
 
 import { FilterProvide } from './components';
-import { Suspense, lazy } from 'react';
-import { delayForDemo } from './delayForDemo';
+import { Suspense } from 'react';
+
 import LoadingThreeDotsJumping from './components/LoadingThreeDotsJumping/LoadingThreeDotsJumping';
 
 import {
@@ -17,13 +17,10 @@ import {
   SectionArea,
   FooterArea,
 } from './LayoutRoot.styles';
+import Task from './components/Task/Task';
+import TaskList from './components/TaskList/TaskList';
 
 function App() {
-  const Task = lazy(() => delayForDemo(import('./components/Task/Task')));
-  const TaskList = lazy(() =>
-    delayForDemo(import('./components/TaskList/TaskList'))
-  );
-
   return (
     <FilterProvide>
       <AppGrid>

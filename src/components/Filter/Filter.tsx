@@ -1,6 +1,5 @@
 import { useFilter } from '../../components/index';
-import { useTasks, type TaskListProps } from '../context/TaskContext';
-
+import { useTasks } from '../context/useTasks';
 import {
   FilterWrapper,
   Title,

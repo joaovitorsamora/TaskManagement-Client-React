@@ -19,7 +19,9 @@ export const useUser = () => {
     senha: '',
   });
   const [loggedUser, setLoggedUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(
+    () => !!localStorage.getItem('authToken')
+  );
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
@@ -108,10 +110,12 @@ export const useUser = () => {
     const token = localStorage.getItem('authToken');
     if (!token || !userLoggedURL) {
       setLoggedUser(null);
+      setLoading(false);
       return;
     }
 
     const fetchUser = async () => {
+      setLoading(true);
       try {
         const response = await fetch(userLoggedURL, {
           headers: { Authorization: `Bearer ${token}` },
@@ -127,6 +131,8 @@ export const useUser = () => {
       } catch (err) {
         console.error('Erro ao verificar sessão:', err);
         setLoggedUser(null);
+      } finally {
+        setLoading(false);
       }
     };
 
