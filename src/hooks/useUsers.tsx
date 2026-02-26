@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
+import type { LoginInput, RegisterInput } from './Users.types';
 
 export type User = {
   id?: number;
   nome: string;
   email: string;
-  senha?: string;
+  senha: string;
 };
 
 type AuthResult = {
@@ -13,109 +14,107 @@ type AuthResult = {
 };
 
 export const useUser = () => {
-  const [newUser, setNewUser] = useState<User>({
-    nome: '',
-    email: '',
-    senha: '',
-  });
-  const [loggedUser, setLoggedUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(
-    () => !!localStorage.getItem('authToken')
-  );
-  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
-  // Fallback para string vazia evita que a URL fique ".../undefined"
+  const [token, setToken] = useState<string | null>(() =>
+    localStorage.getItem('authToken')
+  );
+  const [loadingSession, setLoadingSession] = useState(true);
+  const [loadingAuth, setLoadingAuth] = useState(false);
   const authApiLogin = import.meta.env.VITE_API_URL_LOGIN || '';
   const authApiRegister = import.meta.env.VITE_API_URL_REGISTER || '';
   const userLoggedURL = import.meta.env.VITE_API_URL_ME || '';
 
-  const createUser = useCallback(async (): Promise<AuthResult> => {
-    if (!newUser.nome || !newUser.email || !newUser.senha) {
-      return { success: false, message: 'Preencha todos os campos!' };
-    }
+  const persistToken = (t: string | null) => {
+    if (t) localStorage.setItem('authToken', t);
+    else localStorage.removeItem('authToken');
+    setToken(t);
+  };
 
-    try {
-      setLoading(true);
-      const response = await fetch(authApiRegister, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          Nome: newUser.nome,
-          Email: newUser.email,
-          Senha: newUser.senha,
-        }),
-      });
-
-      if (response.ok) {
-        setNewUser({ nome: '', email: '', senha: '' });
-        setIsRegisterOpen(false);
-        return { success: true };
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        return {
-          success: false,
-          message: errorData.message || 'Erro ao registrar usuário.',
-        };
+  const login = useCallback(
+    async (input: LoginInput): Promise<AuthResult> => {
+      if (!input.nome || !input.senha) {
+        console.log('Campo de login nome e senha vazios');
+        return { success: false, message: 'Preencha todos os campos!' };
       }
-    } catch (err) {
-      console.error('Erro no cadastro:', err);
-      return { success: false, message: 'Erro de conexão com o servidor.' };
-    } finally {
-      setLoading(false);
-    }
-  }, [newUser, authApiRegister]);
 
-  const login = useCallback(async (): Promise<AuthResult> => {
-    // Verifique se o backend espera 'Nome' ou 'Email' no login
-    if (!newUser.nome || !newUser.senha) {
-      return { success: false, message: 'Preencha o nome e a senha!' };
-    }
+      try {
+        setLoadingAuth(true);
+        const response = await fetch(authApiRegister, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            Nome: input.nome,
+            Senha: input.senha,
+          }),
+        });
 
-    try {
-      setLoading(true);
-      const response = await fetch(authApiLogin, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ Nome: newUser.nome, Senha: newUser.senha }),
-      });
+        if (!response.ok) {
+          return { success: false, message: 'Credenciais inválidas.' };
+        }
 
-      if (response.ok) {
         const data = await response.json();
-        localStorage.setItem('authToken', data.token);
-        setLoggedUser(data.user);
-        setIsLoginOpen(false);
+        persistToken(data.token);
+        setUser(data.user);
+
         return { success: true };
-      } else {
-        return { success: false, message: 'Credenciais inválidas.' };
+      } catch {
+        return { success: false, message: 'Erro de conexão' };
+      } finally {
+        setLoadingAuth(false);
       }
-    } catch (err) {
-      console.error('Erro ao fazer login:', err);
-      return {
-        success: false,
-        message: 'Erro de conexão ao tentar fazer login.',
-      };
-    } finally {
-      setLoading(false);
-    }
-  }, [newUser, authApiLogin]);
+    },
+    [authApiLogin]
+  );
+
+  const register = useCallback(
+    async (input: RegisterInput): Promise<AuthResult> => {
+      if (!input.nome || !input.email || !input.senha) {
+        return { success: false, message: 'Preencha todos os campos!' };
+      }
+
+      try {
+        setLoadingAuth(true);
+        const response = await fetch(authApiLogin, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            Nome: input.nome,
+            Email: input.email,
+            Senha: input.senha,
+          }),
+        });
+
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          return {
+            success: false,
+            message: err.message || 'Erro ao registrar',
+          };
+        }
+
+        return { success: true };
+      } catch {
+        return { success: false, message: 'Erro de conexão' };
+      } finally {
+        setLoadingAuth(false);
+      }
+    },
+    [authApiRegister]
+  );
 
   const logout = useCallback(() => {
-    localStorage.removeItem('authToken');
-    setLoggedUser(null);
-    setIsLoginOpen(true);
+    persistToken(null);
+    setUser(null);
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
     if (!token || !userLoggedURL) {
-      setLoggedUser(null);
-      setLoading(false);
+      setLoadingSession(false);
       return;
     }
 
     const fetchUser = async () => {
-      setLoading(true);
       try {
         const response = await fetch(userLoggedURL, {
           headers: { Authorization: `Bearer ${token}` },
@@ -123,34 +122,28 @@ export const useUser = () => {
 
         if (response.ok) {
           const data = await response.json();
-          setLoggedUser(data);
+          setUser(data);
         } else {
-          localStorage.removeItem('authToken');
-          setLoggedUser(null);
+          persistToken(null);
         }
-      } catch (err) {
-        console.error('Erro ao verificar sessão:', err);
-        setLoggedUser(null);
+      } catch {
+        persistToken(null);
       } finally {
-        setLoading(false);
+        setLoadingSession(false);
       }
     };
 
     fetchUser();
-  }, [userLoggedURL]);
+  }, [token, userLoggedURL]);
 
   return {
-    newUser,
-    setNewUser,
-    loggedUser,
-    setLoggedUser,
-    loading,
-    isRegisterOpen,
-    setIsRegisterOpen,
-    isLoginOpen,
-    setIsLoginOpen,
-    createUser,
+    user,
+    token,
+    isAuthenticated: !!user,
+    loadingSession,
+    loadingAuth,
     login,
+    register,
     logout,
   };
 };
