@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   FormContainer,
   FieldGroup,
@@ -7,7 +7,6 @@ import {
   SubmitButton,
   ResetButton,
 } from './TaskForm.styles';
-import { useUser } from '../../hooks/useUsers';
 import type { Priority, Status } from '../context/TaskContext';
 
 interface TaskFormProps {

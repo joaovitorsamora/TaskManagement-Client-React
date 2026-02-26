@@ -28,11 +28,11 @@ const TaskList = () => {
   const token = localStorage.getItem('authToken');
   const { searchItemValue } = useFilter();
   const { setLista, postPerPage } = useTasks();
-  const { loggedUser } = useUser();
+  const { user } = useUser();
 
   const tarefasApi = import.meta.env.VITE_API_URL_TAREFAS;
 
-  if (!loggedUser) return null;
+  if (!user) return null;
 
   const StatusMap: Record<string, Status> = {
     aberta: 'aberta',
