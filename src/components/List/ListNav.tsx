@@ -1,16 +1,22 @@
-import './css/ListNav.css'
+import { Link, Lista, ListaItem, ListaNav } from './ListNav.styles';
+
+const navItems = [
+  { label: 'Hoje', to: '/hoje' },
+  { label: 'Próximo', to: '/proximo' },
+  { label: 'Inbox', to: '/inbox' },
+  { label: 'Arquivadas', to: '/arquivadas' },
+];
 
 export const ListNav = () => {
-    
-    return (
-        <nav className="lista-nav">
-                    <ul className="lista-nav__lista">
-                    {
-                    ["Hoje", "Proximo", "Inbox", "Arquivadas"].map((t) => (
-                        <li className="lista-nav__item"><a className="lista-nav__link">{t}</a></li>
-                        ))
-                    }
-                    </ul>
-                </nav>
-    )
-}
+  return (
+    <ListaNav aria-label="Lista de Tarefas">
+      <Lista>
+        {navItems.map((item) => (
+          <ListaItem key={item.to}>
+            <Link href={item.to}>{item.label}</Link>
+          </ListaItem>
+        ))}
+      </Lista>
+    </ListaNav>
+  );
+};
