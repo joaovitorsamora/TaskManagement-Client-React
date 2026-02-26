@@ -8,33 +8,38 @@ import {
   Modal,
   SubmitButton,
   CancelButton,
-} from './HeadreLogin.styles';
+} from './HeaderLogin.styles';
+import type { LoginInput } from '../../hooks/Users.types';
 
 interface User {
   id?: number;
   nome: string;
   email: string;
-  senha?: string;
+  senha: string;
 }
 
 interface HeaderLoginProps {
   isOpen?: boolean;
   setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   onClickLogin?: () => void;
-  newUser?: User;
-  setNewUser?: React.Dispatch<React.SetStateAction<User>>;
-  handleLogin?: () => void;
+  newUser: User;
+  setNewUser: React.Dispatch<React.SetStateAction<User>>;
+  handleLogin: (l: LoginInput) => void;
   isModalOpen?: boolean;
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  loggedUser?: User;
+  loggedUser: User;
 }
 
 export const HeaderLogin = ({
   onClickLogin,
   isModalOpen,
   setIsModalOpen,
+  handleLogin,
+  newUser,
+  setNewUser,
+  loggedUser,
 }: HeaderLoginProps) => {
-  const { loggedUser, login, logout, newUser, setNewUser } = useUser();
+  const { logout } = useUser();
 
   return (
     <>
@@ -52,12 +57,13 @@ export const HeaderLogin = ({
       )}
 
       {isModalOpen && (
-        <Overlay>
+        <Overlay onClick={() => setIsModalOpen(false)}>
           <Modal
             onSubmit={(e) => {
               e.preventDefault();
-              login();
+              handleLogin(newUser);
             }}
+            onClick={(e) => e.stopPropagation()}
           >
             <label htmlFor="nome">Nome</label>
             <input

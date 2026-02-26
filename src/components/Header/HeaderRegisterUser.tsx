@@ -2,19 +2,26 @@ interface User {
   id?: number;
   nome: string;
   email: string;
-  senha?: string;
+  senha: string;
 }
 interface HeaderRegisterProps {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  handleCreateUser: () => void;
+  handleCreateUser: (i: RegisterInput) => void;
   onClickSignUp: () => void;
   newUser: User;
   setNewUser: React.Dispatch<React.SetStateAction<User>>;
-  loggedUser: User;
+  loggedUser: User | null;
 }
 
+import type { RegisterInput } from '../../hooks/Users.types';
 import './css/HeaderRegisterUser.css';
+import {
+  CancelButton,
+  Modal,
+  Overlay,
+  SubmitButton,
+} from './HeaderLogin.styles';
 export const HeaderRegisterUser = ({
   loggedUser,
   onClickSignUp,
@@ -37,7 +44,7 @@ export const HeaderRegisterUser = ({
       }
 
       {isOpen && (
-        <div id="id01" className="modal">
+        <Overlay onClick={() => setIsOpen(false)}>
           <span
             className="close"
             title="Close Modal"
@@ -45,12 +52,13 @@ export const HeaderRegisterUser = ({
           >
             &times;
           </span>
-          <form
+          <Modal
             className="modal-content animate"
             onSubmit={(e) => {
               e.preventDefault();
-              handleCreateUser();
+              handleCreateUser(newUser);
             }}
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="container-modal">
               <label htmlFor="uname" className="label">
@@ -94,26 +102,26 @@ export const HeaderRegisterUser = ({
                   setNewUser({ ...newUser, senha: e.target.value })
                 }
               />
-              <button type="submit">Cadastrar</button>
+              <SubmitButton type="submit">Cadastrar</SubmitButton>
               <label>
                 <input type="checkbox" checked name="remember" />
               </label>
             </div>
 
             <div className="container" style={{ backgroundColor: '#f1f1f1' }}>
-              <button
+              <CancelButton
                 type="button"
                 className="cancelbtn"
                 onClick={() => setIsOpen(false)}
               >
                 Cancel
-              </button>
+              </CancelButton>
               <span className="psw">
                 Forgot <a href="#">password?</a>
               </span>
             </div>
-          </form>
-        </div>
+          </Modal>
+        </Overlay>
       )}
     </>
   );
