@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useFilter } from '../../components/index';
 import { useTasks } from '../context/useTasks';
 import {
@@ -6,11 +7,10 @@ import {
   Subtitle,
   Group,
   Legend,
-  CheckGroup,
-  Option,
   TagList,
   TagButton,
 } from './Filter.styles';
+import { FilterGroup } from './FilterGroup';
 
 export const Filter = () => {
   const { lista } = useTasks();
@@ -22,13 +22,21 @@ export const Filter = () => {
     setSelectedStatus,
   } = useFilter();
 
-  const priorities = ['todas', 'alta', 'media', 'baixa'];
+  const priorityOptions = [
+    { label: 'Todas', value: 'todas' },
+    { label: 'Alta', value: 'alta' },
+    { label: 'Média', value: 'media' },
+    { label: 'Baixa', value: 'baixa' },
+  ];
 
-  const status = [{ Aberta: 'aberta', Concluida: 'concluida' }];
+  const statusOptions = [
+    { label: 'Aberta', value: 'aberta' },
+    { label: 'Concluida', value: 'concluida' },
+  ];
 
-  const tags = lista.flatMap((tarefa) => tarefa.tags);
-
-  const uniqueTags = [...new Set(tags)];
+  const uniqueTags = useMemo(() => {
+    return [...new Set(lista.flatMap((t) => t.tags))];
+  }, [lista]);
 
   return (
     <FilterWrapper>
@@ -37,56 +45,29 @@ export const Filter = () => {
       <Subtitle>Refine sua lista de tarefas</Subtitle>
 
       <Group>
-        <Legend>Status</Legend>
-
-        {status.map((s, idx) => (
-          <CheckGroup key={idx}>
-            <Option>
-              <input
-                type="checkbox"
-                value={s.Aberta}
-                checked={selectedStatus === s.Aberta}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-              />
-              {s.Aberta.charAt(0).toUpperCase() + s.Aberta.slice(1)}
-            </Option>
-
-            <Option>
-              <input
-                type="checkbox"
-                value={s.Concluida}
-                checked={selectedStatus === s.Concluida}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-              />
-              {s.Concluida.charAt(0).toUpperCase() + s.Concluida.slice(1)}
-            </Option>
-          </CheckGroup>
-        ))}
+        <FilterGroup
+          legend="Status"
+          option={statusOptions}
+          selected={selectedStatus}
+          onChange={setSelectedStatus}
+        />
       </Group>
 
       <Group>
-        <Legend>Prioridade</Legend>
-
-        {priorities.map((priority) => (
-          <Option key={priority}>
-            <input
-              type="radio"
-              name="prioridade"
-              value={priority}
-              checked={selectedPriority === priority}
-              onChange={(e) => setSelectedPriority(e.target.value)}
-            />
-            {priority.charAt(0).toUpperCase() + priority.slice(1)}
-          </Option>
-        ))}
+        <FilterGroup
+          legend="Prioridade"
+          option={priorityOptions}
+          selected={selectedPriority}
+          onChange={setSelectedPriority}
+        />
       </Group>
 
       <Group>
         <Legend>Tags</Legend>
 
         <TagList>
-          {uniqueTags.map((tag, idx) => (
-            <TagButton key={idx}>{tag}</TagButton>
+          {uniqueTags.map((tag) => (
+            <TagButton key={tag}>{tag}</TagButton>
           ))}
         </TagList>
       </Group>
