@@ -40,7 +40,7 @@ export const useUser = () => {
 
       try {
         setLoadingAuth(true);
-        const response = await fetch(authApiRegister, {
+        const response = await fetch(authApiLogin, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -64,7 +64,7 @@ export const useUser = () => {
         setLoadingAuth(false);
       }
     },
-    [authApiRegister, persistToken, setUser, setLoadingAuth]
+    [authApiLogin, persistToken, setUser, setLoadingAuth]
   );
 
   const register = useCallback(
@@ -75,7 +75,7 @@ export const useUser = () => {
 
       try {
         setLoadingAuth(true);
-        const response = await fetch(authApiLogin, {
+        const response = await fetch(authApiRegister, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -100,7 +100,7 @@ export const useUser = () => {
         setLoadingAuth(false);
       }
     },
-    [authApiLogin, setLoadingAuth]
+    [authApiRegister, setLoadingAuth]
   );
 
   const logout = useCallback(() => {

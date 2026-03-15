@@ -23,7 +23,7 @@ export const HeaderRight = () => {
     senha: '',
   });
 
-  if (!user) return null;
+  const users = user!;
 
   return (
     <HeaderActions>
@@ -31,7 +31,7 @@ export const HeaderRight = () => {
         isOpen={isRegisterOpen}
         setIsOpen={setIsRegisterOpen}
         handleCreateUser={register}
-        loggedUser={user}
+        loggedUser={users}
         newUser={newUser}
         setNewUser={setNewUser}
         onClickSignUp={() => setIsRegisterOpen(true)}
@@ -41,7 +41,7 @@ export const HeaderRight = () => {
         isOpen={isLoginOpen}
         setIsOpen={setIsLoginOpen}
         handleLogin={login}
-        loggedUser={user}
+        loggedUser={users}
         newUser={newUser}
         setNewUser={setNewUser}
         isModalOpen={isLoginOpen}
