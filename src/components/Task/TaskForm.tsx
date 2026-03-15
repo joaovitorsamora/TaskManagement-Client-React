@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   FormContainer,
   FieldGroup,
@@ -30,12 +30,14 @@ export const TaskForm = () => {
   });
   const tarefasApi = import.meta.env.VITE_API_URL_TAREFAS;
   const authToken = localStorage.getItem('authToken');
-  const prioridadeMap: Record<string, Priority> = {
-    todas: 'todas',
-    alta: 'alta',
-    media: 'media',
-    baixa: 'baixa',
-  };
+  const prioridadeMap: Record<string, Priority> = useMemo(() => {
+    return {
+      todas: 'todas',
+      alta: 'alta',
+      media: 'media',
+      baixa: 'baixa',
+    };
+  }, []);
 
   const handleTarefaCreate = useCallback(async () => {
     if (!authToken) return;
@@ -76,7 +78,7 @@ export const TaskForm = () => {
       console.error(err);
       alert('Erro ao criar tarefa');
     }
-  }, [authToken, tarefa, tarefasApi]);
+  }, [authToken, tarefa, tarefasApi, prioridadeMap]);
 
   if (!authToken) {
     return <p>Loading ou Acesso Negado...</p>;

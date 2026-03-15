@@ -3,12 +3,12 @@ import { TaskForm } from './TaskForm';
 import { TaskHeader } from './TaskHeader';
 import { TaskWrapper } from './Task.styles';
 
+
+
 const Task = () => {
   const { user } = useUser();
 
-  const users = user!!;
-
-  if (!users) return null;
+  if (!user) return null;
 
   return (
     <TaskWrapper>

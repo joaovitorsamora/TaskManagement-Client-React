@@ -56,7 +56,7 @@ const TaskList = () => {
 
       setLista((prev) => prev.filter((t) => t.id !== id));
     } catch (error) {
-      alert('Erro ao excluir tarefa');
+      alert('Erro ao excluir tarefa' + error);
     }
   };
 
@@ -161,6 +161,8 @@ const TaskList = () => {
     try {
       await handleEditTask(tarefa.id, { statusTarefa: novoStatus });
     } catch (error) {
+      alert("Um erro ocorreu: " + error);
+
       setLista((prev) =>
         prev.map((item) =>
           item.id === tarefa.id

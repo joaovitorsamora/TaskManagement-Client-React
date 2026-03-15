@@ -25,11 +25,11 @@ export const useUser = () => {
   const authApiRegister = import.meta.env.VITE_API_URL_REGISTER || '';
   const userLoggedURL = import.meta.env.VITE_API_URL_ME || '';
 
-  const persistToken = (t: string | null) => {
+  const persistToken = useCallback((t: string | null) => {
     if (t) localStorage.setItem('authToken', t);
     else localStorage.removeItem('authToken');
     setToken(t);
-  };
+  }, [ setToken ]);
 
   const login = useCallback(
     async (input: LoginInput): Promise<AuthResult> => {
@@ -64,7 +64,7 @@ export const useUser = () => {
         setLoadingAuth(false);
       }
     },
-    [authApiLogin]
+    [authApiRegister, persistToken, setUser, setLoadingAuth]
   );
 
   const register = useCallback(
@@ -100,13 +100,13 @@ export const useUser = () => {
         setLoadingAuth(false);
       }
     },
-    [authApiRegister]
+    [authApiLogin, setLoadingAuth]
   );
 
   const logout = useCallback(() => {
     persistToken(null);
     setUser(null);
-  }, []);
+  }, [persistToken, setUser]);
 
   useEffect(() => {
     if (!token || !userLoggedURL) {
@@ -134,7 +134,7 @@ export const useUser = () => {
     };
 
     fetchUser();
-  }, [token, userLoggedURL]);
+  }, [token, userLoggedURL, persistToken, setUser]);
 
   return {
     user,
