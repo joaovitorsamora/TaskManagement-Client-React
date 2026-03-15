@@ -14,7 +14,7 @@ interface HeaderRegisterProps {
   loggedUser: User | null;
 }
 
-import type { RegisterInput } from '../../hooks/Users.types';
+import type { RegisterInput } from '../../types';
 import './css/HeaderRegisterUser.css';
 import {
   CancelButton,

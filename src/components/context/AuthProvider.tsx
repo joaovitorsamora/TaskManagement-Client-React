@@ -1,73 +1,65 @@
-import { useEffect, useState, useCallback } from 'react';
-import type { LoginInput, RegisterInput } from './Users.types';
+import React, { useEffect, useState, useCallback } from 'react';
+import type { LoginInput, RegisterInput } from '../../types';
+import { AuthContext, type AuthResult, type User } from './AuthContext';
 
-export type User = {
-  id?: number;
-  nome: string;
-  email: string;
-  senha: string;
-};
 
-type AuthResult = {
-  success: boolean;
-  message?: string;
-};
 
-export const useUser = () => {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-
-  const [token, setToken] = useState<string | null>(() =>
-    localStorage.getItem('authToken')
-  );
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('authToken'));
   const [loadingSession, setLoadingSession] = useState(true);
   const [loadingAuth, setLoadingAuth] = useState(false);
+
   const authApiLogin = import.meta.env.VITE_API_URL_LOGIN || '';
   const authApiRegister = import.meta.env.VITE_API_URL_REGISTER || '';
   const userLoggedURL = import.meta.env.VITE_API_URL_ME || '';
 
+ 
   const persistToken = useCallback((t: string | null) => {
     if (t) localStorage.setItem('authToken', t);
     else localStorage.removeItem('authToken');
     setToken(t);
   }, [ setToken ]);
 
-  const login = useCallback(
-    async (input: LoginInput): Promise<AuthResult> => {
-      if (!input.nome || !input.senha) {
-        console.log('Campo de login nome e senha vazios');
-        return { success: false, message: 'Preencha todos os campos!' };
-      }
+     const login = useCallback(
+        async (input: LoginInput): Promise<AuthResult> => {
+          if (!input.nome || !input.senha) {
+            console.log('Campo de login nome e senha vazios');
+            return { success: false, message: 'Preencha todos os campos!' };
+          }
+    
+          try {
+            setLoadingAuth(true);
+            const response = await fetch(authApiLogin, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                Nome: input.nome,
+                Senha: input.senha,
+              }),
+            });
+    
+            if (!response.ok) {
+              return { success: false, message: 'Credenciais inválidas.' };
+            }
+    
+            const data = await response.json();
+            persistToken(data.token);
+            setUser(data.user);
+            setLoadingAuth(false);
+    
+            return { success: true };
+          } catch {
+            return { success: false, message: 'Erro de conexão' };
+          } finally {
+            setLoadingAuth(false);
+          }
+        },
+        [authApiLogin, persistToken, setUser, setLoadingAuth]
+      );
 
-      try {
-        setLoadingAuth(true);
-        const response = await fetch(authApiLogin, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            Nome: input.nome,
-            Senha: input.senha,
-          }),
-        });
 
-        if (!response.ok) {
-          return { success: false, message: 'Credenciais inválidas.' };
-        }
-
-        const data = await response.json();
-        persistToken(data.token);
-        setUser(data.user);
-
-        return { success: true };
-      } catch {
-        return { success: false, message: 'Erro de conexão' };
-      } finally {
-        setLoadingAuth(false);
-      }
-    },
-    [authApiLogin, persistToken, setUser, setLoadingAuth]
-  );
-
-  const register = useCallback(
+      const register = useCallback(
     async (input: RegisterInput): Promise<AuthResult> => {
       if (!input.nome || !input.email || !input.senha) {
         return { success: false, message: 'Preencha todos os campos!' };
@@ -134,16 +126,11 @@ export const useUser = () => {
     };
 
     fetchUser();
-  }, [token, userLoggedURL, persistToken, setUser]);
+  }, [token, userLoggedURL, persistToken, setUser, setLoadingSession]);
 
-  return {
-    user,
-    token,
-    isAuthenticated: !!user,
-    loadingSession,
-    loadingAuth,
-    login,
-    register,
-    logout,
-  };
+  return (
+    <AuthContext.Provider value={{ user, setUser, token, isAuthenticated: !!user, loadingSession, loadingAuth, login, register, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };

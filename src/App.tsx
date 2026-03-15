@@ -19,8 +19,13 @@ import {
 } from './LayoutRoot.styles';
 import Task from './components/Task/Task';
 import TaskList from './components/TaskList/TaskList';
+import { useAuth } from './components/context/useAuth';
 
 function App() {
+  const { loadingSession } = useAuth();  
+
+  if(loadingSession) return <div>Carregando...</div>;
+
   return (
     <FilterProvide>
       <AppGrid>

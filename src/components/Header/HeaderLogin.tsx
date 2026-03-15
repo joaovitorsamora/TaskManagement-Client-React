@@ -1,4 +1,3 @@
-import { useUser } from '../../hooks/useUsers';
 import { LogOut } from 'lucide-react';
 
 import {
@@ -9,7 +8,8 @@ import {
   SubmitButton,
   CancelButton,
 } from './HeaderLogin.styles';
-import type { LoginInput } from '../../hooks/Users.types';
+import type { LoginInput } from '../../types';
+import { useAuth } from '../context/useAuth';
 
 interface User {
   id?: number;
@@ -39,7 +39,7 @@ export const HeaderLogin = ({
   setNewUser,
   loggedUser,
 }: HeaderLoginProps) => {
-  const { logout } = useUser();
+  const { logout } = useAuth();
 
   return (
     <>
@@ -62,6 +62,7 @@ export const HeaderLogin = ({
             onSubmit={(e) => {
               e.preventDefault();
               handleLogin(newUser);
+              
             }}
             onClick={(e) => e.stopPropagation()}
           >

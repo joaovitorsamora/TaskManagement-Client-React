@@ -10,10 +10,10 @@ import {
 } from './TaskList.styles';
 import { Modal } from './Modal';
 import { useFilter } from '../../components/index';
-import { useUser } from '../../hooks/useUsers';
 import Swal from 'sweetalert2';
 import { useTasks } from '../context/useTasks';
 import type { Status, TaskListProps } from '../context/TaskContext';
+import { useAuth } from '../context/useAuth';
 
 export type TaskUpdatePayload = {
   id?: number;
@@ -28,7 +28,7 @@ const TaskList = () => {
   const token = localStorage.getItem('authToken');
   const { searchItemValue } = useFilter();
   const { setLista, postPerPage } = useTasks();
-  const { user } = useUser();
+  const { user } = useAuth();
 
   const tarefasApi = import.meta.env.VITE_API_URL_TAREFAS;
 

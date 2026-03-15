@@ -1,12 +1,12 @@
-import { useUser } from '../../hooks/useUsers';
 import { TaskForm } from './TaskForm';
 import { TaskHeader } from './TaskHeader';
 import { TaskWrapper } from './Task.styles';
+import { useAuth } from '../context/useAuth';
 
 
 
 const Task = () => {
-  const { user } = useUser();
+  const { user } = useAuth();
 
   if (!user) return null;
 
